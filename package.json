@@ -1,0 +1,44 @@
+{
+  "name": "hdmap-pro",
+  "version": "1.0.0",
+  "description": "hdmap重构",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --env production",
+    "start": "webpack-dev-server --env development",
+    "lintjs": "eslint app/ webpack.*.js --cache",
+    "stats": "webpack --env production --profile --json > stats.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tyebile/hdmap-pro.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tyebile/hdmap-pro/issues"
+  },
+  "homepage": "https://github.com/Tyebile/hdmap-pro#readme",
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "babili-webpack-plugin": "^0.1.1",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.28.4",
+    "es6-promise": "^4.1.0",
+    "eslint": "^4.1.1",
+    "eslint-loader": "^1.8.0",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "file-loader": "^0.11.2",
+    "html-webpack-include-assets-plugin": "0.0.5",
+    "html-webpack-plugin": "^2.29.0",
+    "jquery": "^3.2.1",
+    "style-loader": "^0.18.2",
+    "webpack": "^3.0.0",
+    "webpack-dev-server": "^2.5.0",
+    "webpack-encoding-plugin": "^0.2.1"
+  }
+}
