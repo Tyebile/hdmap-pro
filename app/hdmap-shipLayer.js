@@ -12,7 +12,6 @@ HDMap.Ship = HDMap.Layer.extend({
   //},
 
   setJsonData:function(map,data){
-    console.info('setJsonData', data);
     var cbList = this._cbList = data.details;
     _map = map;
     var cbJson;
@@ -30,6 +29,9 @@ HDMap.Ship = HDMap.Layer.extend({
         parseFloat(cbList[i].speed),
         cbList[i].shipType,
         cbList[i].name,
+        cbList[i].track_id,
+        cbList[i].call_sign,
+        cbList[i].course,
         cbList[i].mmsi);
       cbJsonArr.push(cbJson);
     }
@@ -45,44 +47,59 @@ HDMap.Ship = HDMap.Layer.extend({
           weight: feature.properties.weight,
           fillColor:feature.properties.fillColor,
           fillOpacity:feature.properties.fillOpacity,
-
+          // dashArray:feature.properties.dashArray,
           name:feature.properties.name,
           mmsi:feature.properties.mmsi,
           speed:feature.properties.speed,
           lon:feature.properties.lon,
           lat:feature.properties.lat,
+          track_id:feature.properties.track_id,
+          call_sign:feature.properties.call_sign,
+          course:feature.properties.course,
         };
       },
 
       onEachFeature: function (feature, layer) {
         var lonLat = changeLonLat(feature.properties.lon,feature.properties.lat);
         var popupText = '<table>'+
-     '<tr>'+
-     '<td>船名</td>'+
-     '<td>'+feature.properties.name+'</td>'+
-     '</tr>'+
-     '<tr>'+
-     '<td>mmsi</td>'+
-     '<td id="mmsi">'+feature.properties.mmsi+'</td>'+
-     '</tr>'+
-     '<tr>'+
-     '<td>速度</td>'+
-     '<td>'+feature.properties.speed+'</td>'+
-     '</tr>'+
-     '<tr>'+
-     '<td>坐标</td>'+
-     '<td>'+lonLat.lonDfm+'，'+lonLat.latDfm+'</td>'+
-     '</tr>'+
-     '</table>'
-					 + '<br/>' +
-     '<input type="text" class="cssInput" id="startDate" data-date-format="yyyy-mm-dd" onclick="WdatePicker({startDate:\'%y-%M-%d %0:%0:%0\', dateFmt:\'yyyy-MM-dd 00:00:00\', minDate: \'%y-%M-%d 00:00:00\', maxDate: \'%y-%M-#{%d+6} 23:00:00\' });" readonly="readonly" placeholder="开始日期">'
-     + '<br/>' +
-     '<input type="text" class="cssInput" id="endDate" data-date-format="yyyy-mm-dd" onclick="WdatePicker({startDate:\'%y-%M-%d %0:%0:%0\',dateFmt:\'yyyy-MM-dd 23:59:59\', minDate: \'%y-%M-%d 00:00:00\', maxDate: \'%y-%M-#{%d+6} 23:00:00\' });" readonly="readonly" placeholder="结束日期">'
-     + '<br/>' 
-     + '<br/>' +
-     '<button class="button button-primary button-rounded button-tiny" id="trackQuery" >轨迹查询</button>'
-     + '&nbsp;' +
-     '<button class="button button-primary button-rounded button-tiny" id="stopQuery" >停泊查询</button>' ;
+        '<tr>'+
+        '<td>船名</td>'+
+        '<td>'+feature.properties.name+'</td>'+
+        '</tr>'+
+        '<tr>'+
+        '<td>编号:</td>'+
+        '<td>'+feature.properties.track_id+'</td>'+
+        '</tr>'+
+        '<tr>'+
+        '<td>呼号:</td>'+
+        '<td>'+feature.properties.call_sign+'</td>'+
+        '</tr>'+
+        '<tr>'+
+        '<td>航向:</td>'+
+        '<td>'+feature.properties.course+'°</td>'+
+        '</tr>'+
+        '<tr>'+
+        '<td>mmsi</td>'+
+        '<td id="mmsi">'+feature.properties.mmsi+'</td>'+
+        '</tr>'+
+        '<tr>'+
+        '<td>速度</td>'+
+        '<td>'+feature.properties.speed+'节</td>'+
+        '</tr>'+
+        '<tr>'+
+        '<td>坐标</td>'+
+        '<td>'+lonLat.lonDfm+'，'+lonLat.latDfm+'</td>'+
+        '</tr>'+
+        '</table>';
+        // 			 + '<br/>' +
+        //  '<input type="text" class="cssInput" id="startDate" data-date-format="yyyy-mm-dd" onclick="WdatePicker({startDate:\'%y-%M-%d %0:%0:%0\', dateFmt:\'yyyy-MM-dd 00:00:00\', minDate: \'%y-%M-%d 00:00:00\', maxDate: \'%y-%M-#{%d+6} 23:00:00\' });" readonly="readonly" placeholder="开始日期">'
+        //  + '<br/>' +
+        //  '<input type="text" class="cssInput" id="endDate" data-date-format="yyyy-mm-dd" onclick="WdatePicker({startDate:\'%y-%M-%d %0:%0:%0\',dateFmt:\'yyyy-MM-dd 23:59:59\', minDate: \'%y-%M-%d 00:00:00\', maxDate: \'%y-%M-#{%d+6} 23:00:00\' });" readonly="readonly" placeholder="结束日期">'
+        //  + '<br/>' 
+        //  + '<br/>' +
+        //  '<button class="button button-primary button-rounded button-tiny" id="trackQuery" >轨迹查询</button>';
+        //  + '&nbsp;' +
+        //  '<button class="button button-primary button-rounded button-tiny" id="stopQuery" >停泊查询</button>' ;
         layer.bindPopup(popupText);
         layer.addEventListener('click',function(){
 
@@ -258,14 +275,14 @@ HDMap.Ship = HDMap.Layer.extend({
 
     _map.addLayer(_shipSelected);
   },
-  drawnShip : function(zoom,lnglat,width,height,angle,speed,shipType,shipName,mmsi) {
+
+  drawnShip : function(zoom,lnglat,width,height,angle,speed,shipType,shipName,track_id,call_sign,course,mmsi) {
     //angle = 0;
     var cbJson;
     //对船速线的处理
     var speedLineLength;
     //对船舶型号(颜色)的描画
-    var color = '#000000';
-
+    var color = '#00ffff';
     // switch(shipType) {
     // case '4': color = '#f6e500';//黄
     //   break;
@@ -280,10 +297,8 @@ HDMap.Ship = HDMap.Layer.extend({
     // case '9': color = '#ff00ff';//亮紫
     //   break;
     // }
-      console.log(shipType+"wai");
     if((1 <= shipType && shipType <= 4) || shipType == 10 || shipType == 12){
       color = '#2CBE3A';
-       console.log(shipType+"nei");
     }else if(5 <= shipType && shipType <= 9){
       color = '#FC8604';
     }else if(shipType == 11 || shipType == 22){
@@ -295,7 +310,6 @@ HDMap.Ship = HDMap.Layer.extend({
     }else if(17 <= shipType && shipType <= 20){
       color = '#DC5AC8';
     }
-    console.log(color);
     var latLng1,latLng2,latLng3,latLng4,latLng5,latLng6,latLng7,latLng8,latLng9,latLng10;
     if (((zoom == 14 && height >= 0.2) || (zoom == 15 && height >= 0.1) || (zoom == 16 && height >= 0.05) || (zoom == 17 && height >= 0.03) || (zoom == 18 && height >= 0.01)) && height/width > 2 && (height > 0 && height < 0.5) && (width > 0 && width < 0.2)) {
       if (speed === 0) {
@@ -340,6 +354,7 @@ HDMap.Ship = HDMap.Layer.extend({
           'color': '#000000',
           'fillColor': color,
           'weight':1,
+        'dashArray': '10, 10',
           'fillOpacity': 1,
           'opacity': 1,
           'lon':lnglat.lng,
@@ -349,6 +364,10 @@ HDMap.Ship = HDMap.Layer.extend({
           'speed': speed,
           'height': height,
           'width': width,
+          'track_id' : track_id,
+          'call_sign' : call_sign,
+          'course' : course,
+
         },
       };
     } else {
@@ -392,6 +411,7 @@ HDMap.Ship = HDMap.Layer.extend({
           'weight':1,
           'fillOpacity': 1,
           'stroke': '#555555',
+          'dashArray': '10, 10',
           'opacity': 1,
           'stroke-width': 1,
           'lon':lnglat.lng,
@@ -401,6 +421,9 @@ HDMap.Ship = HDMap.Layer.extend({
           'speed': speed,
           'height': height,
           'width': width,
+          'track_id' : track_id,
+          'call_sign' : call_sign,
+          'course' : course,
         },
       };
     }

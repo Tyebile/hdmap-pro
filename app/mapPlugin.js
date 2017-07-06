@@ -47,9 +47,9 @@ export function monitorPlugin(idParam, classNameParam, innerHTMLParam, listParam
     }).then(function(result) {
       let html;
       for(var oData of result.monitors){
-        html = '<td style="border:1px solid #666666;padding:5px">' + oData.alarm_level + '</td>';
+        html = '<td style="border:1px solid #666666;padding:5px">' + oData.monitor_id + '</td>';
         html += '<td style="border:1px solid #666666;padding:5px">' + oData.detail_info + '</td>';
-        html += '<td style="border:1px solid #666666;padding:5px">' + oData.alarm_type + '</td>';
+        html += '<td style="border:1px solid #666666;padding:5px">' + oData.alarm_level + '</td>';
         const tr = document.createElement('tr');
         tr.innerHTML = html;
         insertAfter(tr, document.getElementById('headtitle'));

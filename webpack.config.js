@@ -4,7 +4,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 const BabiliPlugin = require('babili-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const EncodingPlugin = require('webpack-encoding-plugin');
 const webpack = require('webpack');
 
 const PATHS = {

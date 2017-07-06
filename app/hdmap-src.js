@@ -5247,9 +5247,8 @@
     // used by each vector layer to decide which renderer to use
     getRenderer: function (layer) {
       var renderer = layer.options.renderer || this._getPaneRenderer(layer.options.pane) || this.options.renderer || this._renderer;
-
       if (!renderer) {
-        renderer = this._renderer = (HDMap.Canvas && HDMap.canvas() || (HDMap.SVG && HDMap.svg()));
+        renderer = this._renderer = ((HDMap.SVG && HDMap.svg()) || HDMap.Canvas && HDMap.canvas());
       }
 
       if (!this.hasLayer(renderer)) {
@@ -6216,14 +6215,12 @@ HDMap.circle = function (latlng, radius, startangle, endangle, options) {
         options = layer.options;
 
       if (!path) { return; }
-
       if (options.stroke) {
         path.setAttribute('stroke', options.color);
         path.setAttribute('stroke-opacity', options.opacity);
         path.setAttribute('stroke-width', options.weight);
         path.setAttribute('stroke-linecap', options.lineCap);
         path.setAttribute('stroke-linejoin', options.lineJoin);
-
         if (options.dashArray) {
           path.setAttribute('stroke-dasharray', options.dashArray);
         } else {

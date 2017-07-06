@@ -1,10 +1,10 @@
 import HDMap from './hdmap-src';
-// import HDMap from './hdmap-src1';
 import './hdmap-shipLayer';
 import './hdmap.draw-src';
 import './Control.MiniMap';
 import {sealandPlugin} from './mapPlugin';  
 import {monitorPlugin} from './mapPlugin';
+import {udfType} from './contans';
 
 
 /**********************************************************************************
@@ -176,10 +176,12 @@ window.data = fetch(shipsInfoUrl)
     for(var oData of result.ships){
       let item = {};
       item.mmsi = oData.mmsi;
+      item.track_id = oData.track_id;
+      item.call_sign = oData.call_sign;
       item.nav_status = oData.nav_status;
-      item.course = oData.course;
+      item.course = oData.course/10;
       item.shipType = oData.ship_type;
-      item.name = oData.c_name;
+      item.name = oData.c_name || oData.e_name || oData.e_name || oData.ais_name || oData.track_id;
       item.longitudeMap = oData.lon/10000000;
       item.nlon = oData.lon/10000000;
       item.length = oData.ship_length;
@@ -188,7 +190,7 @@ window.data = fetch(shipsInfoUrl)
       item.lat = oData.lat/10000000;
       item.navStatus = oData.nav_status;
       item.lon = oData.lon/10000000;
-      item.speed = oData.speed;
+      item.speed = oData.speed/100;
       item.ship_type = oData.ship_type;
       item.width = oData.ship_breadth;
       item.latitudeMap = oData.lat/10000000;
@@ -243,52 +245,68 @@ const monitorsToggle = 'hdmap-control-layers-toggle2';
 
 monitorPlugin(monitorsId, monitorsClassName, monitorsHtml, monitorsList, monitorsToggle);
 
-
+/********* 物标信息 ********* */
+// var circleLayer, sectorLayer, polylineLayer, polygonLayer;
  fetch('http://vts.hdnav.com:8000/v1/sync_objects_info')
   .then(function(response) {
     return response.json();
   }).then(function(result) {
-    console.log(result);
     for(var oData of result.objects){
-      if(oData.kind == 5){//圆
-        HDMap.circle([oData.points[0].point_lat/10000000, oData.points[0].point_lon/10000000], oData.radius/10000 * 1852, 0, 360).addTo(map);
-      }else if(oData.kind == 4){//扇形
-        HDMap.circle([oData.points[0].point_lat/10000000, oData.points[0].point_lon/10000000], oData.radius/10000 * 1852, oData.begin_bearing/10 , oData.end_bearing/10).addTo(map);
-      }
-      var pointArray = [];
-      if(oData.kind == 2){//折线
-        for(var i=0; i<oData.points.length; i++){
-          pointArray[i] = [oData.points[i].point_lat/10000000, oData.points[i].point_lon/10000000];
+      if(oData.udf_type != 18){
+        if(oData.kind == 5){//圆
+          HDMap.circle([oData.points[0].point_lat/10000000, oData.points[0].point_lon/10000000], oData.radius/10000 * 1852, 0, 360).addTo(map);
+        }else if(oData.kind == 4){//扇形
+          HDMap.circle([oData.points[0].point_lat/10000000, oData.points[0].point_lon/10000000], oData.radius/10000 * 1852, oData.begin_bearing/10 , oData.end_bearing/10).addTo(map);
         }
-        HDMap.polyline([pointArray], {color: 'red'}).addTo(map);
-      }
-      var PolygonArray = []
-      var layer;
-      var shapeArray = [];
-      if(oData.kind == 3){//多边形
-        for(var i=0; i<oData.points.length; i++){
-          shapeArray[i] = [oData.points[i].point_lat/10000000, oData.points[i].point_lon/10000000];
+        var pointArray = [];
+        if(oData.kind == 2){//折线
+          for(var i=0; i<oData.points.length; i++){
+            pointArray[i] = [oData.points[i].point_lat/10000000, oData.points[i].point_lon/10000000];
+          }
+          HDMap.polyline([pointArray], {color: 'red'}).addTo(map);
         }
-        console.log(shapeArray);
-        HDMap.polygon([shapeArray], HDMap.polyline([shapeArray], {color: 'red'})).addTo(map);
-      }
-     
 
-    
+        var shapeArray = [];
+        if(oData.kind == 3){//多边形
+          for(var i=0; i<oData.points.length; i++){
+            shapeArray[i] = [oData.points[i].point_lat/10000000, oData.points[i].point_lon/10000000];
+          }
+
+
+          var  polygon = HDMap.polygon([shapeArray], HDMap.polyline([shapeArray]));
+          // polygon.addTo(map);
+          var polygonGeo = polygon.toGeoJSON();
+
+
+           var popupText = '<table>'+
+          '<tr>'+
+          '<td>区域：</td>'+
+          '<td>'+udfType(oData.udf_type)+'</td>'+
+          '</tr>'+
+          '<tr>'+
+          '<td>名称：</td>'+
+          '<td>'+oData.desc_content+'</td>'+
+          '</tr>'+
+          '</table>';
+
+          new HDMap.geoJson(polygonGeo,{dashArray:'5,5',
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(popupText);
+          }}).addTo(map);
+        }
+      }
     }
-
 });
 
-// fetch('http://localhost:7001/mles-server/api/tQuery/gettest')
-// .then(function(response) {
-//   return response.json();
-// }).then(function(result) {
-//   console.log(result);
-// });
-
 map.on('zoomend', function(){
-  // const zoom = map.getZoom();
-  shipLayer.remove();
-  shipLayer.setJsonData(map, data);
-  shipLayer.addTo(map);
+  const zoom = map.getZoom();
+
+  if (zoom >= 10) {
+    shipLayer.remove();
+    shipLayer.setJsonData(map, data);
+    shipLayer.addTo(map);
+  }else {
+    map.removeLayer(shipLayer);
+  }
+
 });
