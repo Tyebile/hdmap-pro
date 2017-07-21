@@ -7,14 +7,14 @@ export function sealandPlugin(idParam, classNameParam, innerHTMLParam, listParam
   seaLandSelect.className = classNameParam;
   seaLandSelect.setAttribute('aria-haspopup', true);
   seaLandSelect.innerHTML = innerHTMLParam;
-  hdmap_right.insertBefore(seaLandSelect,hdmap_right.childNodes[0]);  
+  hdmap_right.insertBefore(seaLandSelect,hdmap_right.childNodes[0]);
 
-  seaLandSelect.addEventListener('mouseover', function() {   
+  seaLandSelect.addEventListener('mouseover', function() {
     document.getElementById(listParam).style.display = 'block';
     document.getElementById(toggleParam).style.display = 'none';
   }, false);
 
-  seaLandSelect.addEventListener('mouseout', function() {   
+  seaLandSelect.addEventListener('mouseout', function() {
     document.getElementById(listParam).style.display = 'none';
     document.getElementById(toggleParam).style.display = 'block';
   }, false);

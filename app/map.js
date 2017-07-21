@@ -190,7 +190,7 @@ window.data = fetch(shipsInfoUrl)
       item.lat = oData.lat/10000000;
       item.navStatus = oData.nav_status;
       item.lon = oData.lon/10000000;
-      item.speed = oData.speed/100;
+      item.speed = oData.speed/10;
       item.ship_type = oData.ship_type;
       item.width = oData.ship_breadth;
       item.latitudeMap = oData.lat/10000000;
@@ -206,22 +206,22 @@ window.data = fetch(shipsInfoUrl)
 
 /*************（5）海图、陆图切换控件************/
 
-const sealandHtml = '<a id="hdmap-control-layers-toggle" class="hdmap-control-layers-toggle" style="background-image: url(app/css/images/sea_land_map_marker.png);width: 36px;height: 36px;" href="#" title="Layers"></a>' +
-                '<form id="hdmap-control-layers-list" class="hdmap-control-layers-list" style="padding: 5px;"> ' +
-                '<div class="hdmap-control-layers-base"> ' +
-                '<p>搜索设置</p>' +
-                '<div class="hdmap-control-layers-separator"></div>' +
-                '<label> <input type="radio" class="hdmap-control-layers-selector" name="sealand" checked="checked" value="0"> ' +
-                '<span></span>陆地</span> </label> ' +
-                '<label> <input type="radio" class="hdmap-control-layers-selector" name="sealand" value="1">' +
-                '<span style="margin-left: 3px;">海洋</span> </label> </div> ' +
-                '</form>';
-const sealandId = 'sea-land-select';
-const sealandClassName = 'hdmap-control-layers hdmap-control';
-const sealandList = 'hdmap-control-layers-list';
-const sealandToggle = 'hdmap-control-layers-toggle';
+// const sealandHtml = '<a id="hdmap-control-layers-toggle" class="hdmap-control-layers-toggle" style="background-image: url(app/css/images/sea_land_map_marker.png);width: 36px;height: 36px;" href="#" title="Layers"></a>' +
+//                 '<form id="hdmap-control-layers-list" class="hdmap-control-layers-list" style="padding: 5px;"> ' +
+//                 '<div class="hdmap-control-layers-base"> ' +
+//                 '<p>搜索设置</p>' +
+//                 '<div class="hdmap-control-layers-separator"></div>' +
+//                 '<label> <input type="radio" class="hdmap-control-layers-selector" name="sealand" checked="checked" value="0"> ' +
+//                 '<span></span>陆地</span> </label> ' +
+//                 '<label> <input type="radio" class="hdmap-control-layers-selector" name="sealand" value="1">' +
+//                 '<span style="margin-left: 3px;">海洋</span> </label> </div> ' +
+//                 '</form>';
+// const sealandId = 'sea-land-select';
+// const sealandClassName = 'hdmap-control-layers hdmap-control';
+// const sealandList = 'hdmap-control-layers-list';
+// const sealandToggle = 'hdmap-control-layers-toggle';
 
-sealandPlugin(sealandId, sealandClassName, sealandHtml, sealandList, sealandToggle);
+// sealandPlugin(sealandId, sealandClassName, sealandHtml, sealandList, sealandToggle);
 
 /*************（6）监控报警信息控件************/
 
@@ -232,9 +232,9 @@ const monitorsHtml = '<a id="hdmap-control-layers-toggle2" class="hdmap-control-
             '<div id="table">'+
             '<table align="center" style="border:1px #666666;border-collapse: collapse">'+
             '<tr id="headtitle">'+
-            '<th style="padding:10px;background-color: #dedede;border:1px solid #666666">' + '报警级别' + '</th>'+
+            '<th style="padding:10px;background-color: #dedede;border:1px solid #666666">' + '报警ID' + '</th>'+
             '<th style="padding:10px;background-color: #dedede;border:1px solid #666666">' + '详细信息' + '</th>'+
-            '<th style="padding:10px;background-color: #dedede;border:1px solid #666666">' + '报警类型' + '</th>'+
+            '<th style="padding:10px;background-color: #dedede;border:1px solid #666666">' + '报警级别' + '</th>'+
             '</tr>'+
             '</table>'+
             '</div></div></div></form>';
@@ -246,7 +246,7 @@ const monitorsToggle = 'hdmap-control-layers-toggle2';
 monitorPlugin(monitorsId, monitorsClassName, monitorsHtml, monitorsList, monitorsToggle);
 
 /********* 物标信息 ********* */
-// var circleLayer, sectorLayer, polylineLayer, polygonLayer;
+var circleLayer, sectorLayer, polylineLayer, polygonLayer;
  fetch('http://vts.hdnav.com:8000/v1/sync_objects_info')
   .then(function(response) {
     return response.json();
@@ -263,7 +263,9 @@ monitorPlugin(monitorsId, monitorsClassName, monitorsHtml, monitorsList, monitor
           for(var i=0; i<oData.points.length; i++){
             pointArray[i] = [oData.points[i].point_lat/10000000, oData.points[i].point_lon/10000000];
           }
-          HDMap.polyline([pointArray], {color: 'red'}).addTo(map);
+          polylineLayer = HDMap.polyline([pointArray], {color: 'red'});
+          polylineLayer.addTo(map);
+          
         }
 
         var shapeArray = [];
@@ -274,7 +276,6 @@ monitorPlugin(monitorsId, monitorsClassName, monitorsHtml, monitorsList, monitor
 
 
           var  polygon = HDMap.polygon([shapeArray], HDMap.polyline([shapeArray]));
-          // polygon.addTo(map);
           var polygonGeo = polygon.toGeoJSON();
 
 
@@ -289,7 +290,7 @@ monitorPlugin(monitorsId, monitorsClassName, monitorsHtml, monitorsList, monitor
           '</tr>'+
           '</table>';
 
-          new HDMap.geoJson(polygonGeo,{dashArray:'5,5',
+          new HDMap.geoJson(polygonGeo,{dashArray:'5,5', weight:1,
           onEachFeature: function (feature, layer) {
             layer.bindPopup(popupText);
           }}).addTo(map);
@@ -308,5 +309,4 @@ map.on('zoomend', function(){
   }else {
     map.removeLayer(shipLayer);
   }
-
 });

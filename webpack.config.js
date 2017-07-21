@@ -18,7 +18,7 @@ const plugin = new ExtractTextPlugin({
 
 module.exports = {
   devServer: {
-    host: 'localhost', 
+    host: '190.0.1.67', 
     // public: '0.0.0.0:80', //docker webpack
     port: 8080,
   },
