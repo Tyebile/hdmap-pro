@@ -3,7 +3,7 @@ export function udfType(udf_type){
         case 0: { 
             udf_type = '普通区域';
             break; 
-        } 
+        }
         case 1: { 
             udf_type = '普通折线';
             break; 
